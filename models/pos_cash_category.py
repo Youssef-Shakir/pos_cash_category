@@ -34,7 +34,6 @@ class PosCashCategory(models.Model):
 
     description = fields.Text(string='Description')
 
-    # Statistics
     total_cash_in = fields.Monetary(
         string='Total Cash In',
         compute='_compute_totals',
@@ -121,7 +120,6 @@ class PosCashMove(models.Model):
 
     notes = fields.Text(string='Notes')
 
-    # Related fields
     config_id = fields.Many2one(
         related='session_id.config_id',
         store=True

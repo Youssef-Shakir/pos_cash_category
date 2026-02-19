@@ -4,22 +4,8 @@
     'version': '18.0.1.0.0',
     'category': 'Point of Sale',
     'summary': 'Categorize POS cash in/out with automatic account posting',
-    'description': """
-POS Cash In/Out Categories
-==========================
-- Create categories for cash in/out operations
-- Assign specific accounts to each category
-- Automatic journal entry posting to the correct account
-- Replace suspense account with category-specific accounts
-- Track cash movements by category
-
-Setup:
-1. Go to POS > Configuration > Cash Categories
-2. Create categories and assign accounts
-3. Enable "Use Cash Categories" in POS Configuration
-4. Use cash in/out from POS with category selection
-    """,
-    'author': 'Custom',
+    'author': 'Donialink, Yousif Shakir',
+    'website': 'https://www.donialink.com',
     'depends': ['point_of_sale', 'account'],
     'data': [
         'security/ir.model.access.csv',

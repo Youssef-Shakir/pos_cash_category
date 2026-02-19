@@ -11,7 +11,7 @@ export class CashCategoryPopup extends Component {
     static components = { Dialog };
     static props = {
         title: { type: String, optional: true },
-        type: { type: String, optional: true },  // 'in' or 'out'
+        type: { type: String, optional: true },
         close: Function,
         getPayload: { type: Function, optional: true },
         confirmKey: { type: String, optional: true },
@@ -23,14 +23,13 @@ export class CashCategoryPopup extends Component {
         this.notification = useService("notification");
 
         this.state = useState({
-            type: this.props.type || "in",  // Default to cash in
+            type: this.props.type || "in",
             selectedCategory: null,
             amount: "",
             reason: "",
             loading: false,
         });
 
-        // Use categories already loaded in pos store
         this.allCategories = this.pos.cashCategories || [];
     }
 
@@ -46,7 +45,7 @@ export class CashCategoryPopup extends Component {
 
     setType(type) {
         this.state.type = type;
-        this.state.selectedCategory = null;  // Reset selection when type changes
+        this.state.selectedCategory = null;
     }
 
     selectCategory(category) {

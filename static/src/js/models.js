@@ -8,7 +8,6 @@ import { _t } from "@web/core/l10n/translation";
 
 patch(PosStore.prototype, {
     async loadCashCategories() {
-        // Load categories if not already loaded
         if (this._cashCategoriesLoaded) {
             return;
         }
@@ -30,9 +29,7 @@ patch(PosStore.prototype, {
     },
 
     async cashMove() {
-        // If cash categories are enabled, use our custom popup
         if (this.config.use_cash_categories) {
-            // Load categories on first use
             await this.loadCashCategories();
 
             if (this.cashCategories && this.cashCategories.length > 0) {
@@ -43,7 +40,6 @@ patch(PosStore.prototype, {
                 });
             }
         }
-        // Otherwise use default behavior
         return super.cashMove(...arguments);
     },
 });

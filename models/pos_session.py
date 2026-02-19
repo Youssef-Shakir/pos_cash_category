@@ -59,15 +59,11 @@ class PosSession(models.Model):
             if not category.exists():
                 return {'error': _('Category not found')}
 
-            # Determine type based on amount
             move_type = 'in' if amount >= 0 else 'out'
             abs_amount = abs(amount)
 
-            # Create the standard bank statement line for session cash control
-            # This integrates with the session's cash register and uses the category's account
             statement_line = self._create_cash_statement_line(category, abs_amount, move_type, reason)
 
-            # Create our categorized cash move record linked to the statement line
             move = self.env['pos.cash.move'].create({
                 'name': reason if reason else category.name,
                 'session_id': self.id,
@@ -99,14 +95,11 @@ class PosSession(models.Model):
         sign = 1 if move_type == 'in' else -1
         signed_amount = sign * amount
 
-        # Build reference
         type_label = _('Cash In') if move_type == 'in' else _('Cash Out')
         payment_ref = f"{self.name} - {type_label} - {category.name}"
         if reason:
             payment_ref += f" ({reason})"
 
-        # Create statement line with category's account as counterpart
-        # This posts to the category's account instead of the default suspense account
         vals = {
             'pos_session_id': self.id,
             'journal_id': self.cash_journal_id.id,
