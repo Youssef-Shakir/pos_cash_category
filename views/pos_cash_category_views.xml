@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Cash Category Form View -->
+    <record id="view_pos_cash_category_form" model="ir.ui.view">
+        <field name="name">pos.cash.category.form</field>
+        <field name="model">pos.cash.category</field>
+        <field name="arch" type="xml">
+            <form string="Cash Category">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_moves" type="object"
+                                class="oe_stat_button" icon="fa-exchange"
+                                invisible="move_count == 0">
+                            <field name="move_count" widget="statinfo" string="Moves"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Category Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuration">
+                            <field name="category_type"/>
+                            <field name="account_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Statistics">
+                            <field name="total_cash_in"/>
+                            <field name="total_cash_out"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Description..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Cash Category List View -->
+    <record id="view_pos_cash_category_list" model="ir.ui.view">
+        <field name="name">pos.cash.category.list</field>
+        <field name="model">pos.cash.category</field>
+        <field name="arch" type="xml">
+            <list string="Cash Categories">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category_type"/>
+                <field name="account_id"/>
+                <field name="total_cash_in" sum="Total In"/>
+                <field name="total_cash_out" sum="Total Out"/>
+                <field name="move_count"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Cash Category Action -->
+    <record id="action_pos_cash_category" model="ir.actions.act_window">
+        <field name="name">Cash Categories</field>
+        <field name="res_model">pos.cash.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Cash Move Form View -->
+    <record id="view_pos_cash_move_form" model="ir.ui.view">
+        <field name="name">pos.cash.move.form</field>
+        <field name="model">pos.cash.move</field>
+        <field name="arch" type="xml">
+            <form string="Cash Move">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="session_id"/>
+                            <field name="category_id"/>
+                            <field name="amount"/>
+                            <field name="move_type"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="create_date" string="Date"/>
+                            <field name="statement_line_id"/>
+                            <field name="account_move_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Cash Move List View -->
+    <record id="view_pos_cash_move_list" model="ir.ui.view">
+        <field name="name">pos.cash.move.list</field>
+        <field name="model">pos.cash.move</field>
+        <field name="arch" type="xml">
+            <list string="Cash Moves">
+                <field name="create_date" string="Date"/>
+                <field name="name"/>
+                <field name="session_id"/>
+                <field name="category_id"/>
+                <field name="move_type"/>
+                <field name="amount" sum="Total"/>
+                <field name="user_id"/>
+                <field name="account_move_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Cash Move Search View -->
+    <record id="view_pos_cash_move_search" model="ir.ui.view">
+        <field name="name">pos.cash.move.search</field>
+        <field name="model">pos.cash.move</field>
+        <field name="arch" type="xml">
+            <search string="Cash Moves">
+                <field name="name"/>
+                <field name="session_id"/>
+                <field name="category_id"/>
+                <filter name="filter_cash_in" string="Cash In" domain="[('move_type', '=', 'in')]"/>
+                <filter name="filter_cash_out" string="Cash Out" domain="[('move_type', '=', 'out')]"/>
+                <separator/>
+                <filter name="filter_today" string="Today" domain="[('create_date', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_category" string="Category" context="{'group_by': 'category_id'}"/>
+                    <filter name="group_session" string="Session" context="{'group_by': 'session_id'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'move_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Cash Move Action -->
+    <record id="action_pos_cash_move" model="ir.actions.act_window">
+        <field name="name">Cash Moves</field>
+        <field name="res_model">pos.cash.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_pos_cash_move_search"/>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_pos_cash_category_root"
+              name="Cash Categories"
+              parent="point_of_sale.menu_point_config_product"
+              sequence="50"/>
+
+    <menuitem id="menu_pos_cash_category"
+              name="Categories"
+              parent="menu_pos_cash_category_root"
+              action="action_pos_cash_category"
+              sequence="10"/>
+
+    <menuitem id="menu_pos_cash_move"
+              name="Cash Moves"
+              parent="menu_pos_cash_category_root"
+              action="action_pos_cash_move"
+              sequence="20"/>
+
+</odoo>

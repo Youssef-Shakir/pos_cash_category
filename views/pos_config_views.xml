@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extend POS Settings (res.config.settings) -->
+    <record id="res_config_settings_view_form_cash_category" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.pos.cash.category</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='pos_accounting_section']" position="inside">
+                <setting string="Cash Categories" help="Categorize cash in/out with automatic account posting">
+                    <field name="pos_use_cash_categories"/>
+                    <div class="content-group mt-2" invisible="not pos_use_cash_categories">
+                        <div class="row">
+                            <label for="pos_cash_category_ids" class="col-3 o_light_label"/>
+                            <field name="pos_cash_category_ids" widget="many2many_tags"/>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend POS Session Form to show cash moves -->
+    <record id="view_pos_session_form_cash_moves" model="ir.ui.view">
+        <field name="name">pos.session.form.cash.moves</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Cash Moves by Category" invisible="not cash_move_ids">
+                    <group>
+                        <field name="cash_in_total"/>
+                    </group>
+                    <group>
+                        <field name="cash_out_total"/>
+                    </group>
+                </group>
+                <field name="cash_move_ids" readonly="1" invisible="not cash_move_ids">
+                    <list>
+                        <field name="create_date" string="Date"/>
+                        <field name="name"/>
+                        <field name="category_id"/>
+                        <field name="move_type"/>
+                        <field name="amount" sum="Total"/>
+                        <field name="statement_line_id" optional="hide"/>
+                        <field name="account_move_id"/>
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

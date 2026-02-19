@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_cash_category.CashCategoryPopup">
+        <Dialog title="title" size="'lg'">
+            <div class="cash-category-popup p-3">
+                <!-- Type Toggle (Cash In / Cash Out) -->
+                <div class="mb-4">
+                    <div class="btn-group w-100" role="group">
+                        <button
+                            t-att-class="'btn btn-lg w-50 ' + (state.type === 'in' ? 'btn-success' : 'btn-outline-secondary')"
+                            t-on-click="() => this.setType('in')">
+                            <i class="fa fa-arrow-down me-2"/>
+                            Cash In
+                        </button>
+                        <button
+                            t-att-class="'btn btn-lg w-50 ' + (state.type === 'out' ? 'btn-danger' : 'btn-outline-secondary')"
+                            t-on-click="() => this.setType('out')">
+                            <i class="fa fa-arrow-up me-2"/>
+                            Cash Out
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Select Category:</label>
+                    <div class="row g-2">
+                        <t t-foreach="filteredCategories" t-as="category" t-key="category.id">
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <button
+                                    t-att-class="'btn w-100 py-3 ' + (state.selectedCategory?.id === category.id ? 'btn-primary' : 'btn-outline-secondary')"
+                                    t-on-click="() => this.selectCategory(category)">
+                                    <i class="fa fa-tag me-2"/>
+                                    <t t-esc="category.name"/>
+                                </button>
+                            </div>
+                        </t>
+                    </div>
+                    <t t-if="filteredCategories.length === 0">
+                        <div class="alert alert-warning mt-2">
+                            <i class="fa fa-exclamation-triangle me-2"/>
+                            No categories available for <t t-esc="state.type === 'in' ? 'Cash In' : 'Cash Out'"/>.
+                            Please create categories in POS Configuration.
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Amount Input -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Amount:</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text">
+                            <t t-esc="pos.currency.symbol"/>
+                        </span>
+                        <input type="number"
+                               class="form-control form-control-lg"
+                               t-model="state.amount"
+                               placeholder="0.00"
+                               step="0.01"
+                               min="0"/>
+                    </div>
+                </div>
+
+                <!-- Reason Input -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Reason/Notes (optional):</label>
+                    <textarea class="form-control"
+                              t-model="state.reason"
+                              rows="2"
+                              placeholder="Enter reason for cash in/out..."/>
+                </div>
+            </div>
+
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary btn-lg" t-on-click="cancel">
+                    Cancel
+                </button>
+                <button
+                    t-att-class="'btn btn-lg ' + (state.type === 'in' ? 'btn-success' : 'btn-danger')"
+                    t-on-click="confirm"
+                    t-att-disabled="!isValid">
+                    <i t-att-class="'fa me-2 ' + (state.type === 'in' ? 'fa-arrow-down' : 'fa-arrow-up')"/>
+                    Confirm <t t-esc="state.type === 'in' ? 'Cash In' : 'Cash Out'"/>
+                </button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>
