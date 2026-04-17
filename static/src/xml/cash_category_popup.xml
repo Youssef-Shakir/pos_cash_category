@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
 
-    <t t-name="pos_cash_category.CashCategoryPopup">
-        <Dialog title="title" size="'lg'">
-            <div class="cash-category-popup p-3">
+    <t t-name="pos_cash_category.CashCategoryPopup" owl="1">
+        <div class="popup cash-category-popup">
+            <div class="modal-header drag-handle">
+                <h4 class="modal-title"><t t-esc="title"/></h4>
+            </div>
+            <div class="popup-body p-3">
                 <!-- Type Toggle (Cash In / Cash Out) -->
                 <div class="mb-4">
                     <div class="btn-group w-100" role="group">
@@ -29,7 +32,7 @@
                         <t t-foreach="filteredCategories" t-as="category" t-key="category.id">
                             <div class="col-6 col-md-4 col-lg-3">
                                 <button
-                                    t-att-class="'btn w-100 py-3 ' + (state.selectedCategory?.id === category.id ? 'btn-primary' : 'btn-outline-secondary')"
+                                    t-att-class="'btn w-100 py-3 ' + (state.selectedCategory and state.selectedCategory.id === category.id ? 'btn-primary' : 'btn-outline-secondary')"
                                     t-on-click="() => this.selectCategory(category)">
                                     <i class="fa fa-tag me-2"/>
                                     <t t-esc="category.name"/>
@@ -72,7 +75,7 @@
                 </div>
             </div>
 
-            <t t-set-slot="footer">
+            <div class="popup-footer">
                 <button class="btn btn-secondary btn-lg" t-on-click="cancel">
                     Cancel
                 </button>
@@ -83,8 +86,8 @@
                     <i t-att-class="'fa me-2 ' + (state.type === 'in' ? 'fa-arrow-down' : 'fa-arrow-up')"/>
                     Confirm <t t-esc="state.type === 'in' ? 'Cash In' : 'Cash Out'"/>
                 </button>
-            </t>
-        </Dialog>
+            </div>
+        </div>
     </t>
 
 </templates>

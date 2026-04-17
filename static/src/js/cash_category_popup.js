@@ -1,26 +1,19 @@
-/** @odoo-module */
+/** @odoo-module **/
 
-import { Component, useState } from "@odoo/owl";
-import { Dialog } from "@web/core/dialog/dialog";
-import { usePos } from "@point_of_sale/app/store/pos_hook";
+import { AbstractAwaitablePopup } from "@point_of_sale/app/popup/abstract_awaitable_popup";
 import { useService } from "@web/core/utils/hooks";
+import { usePos } from "@point_of_sale/app/store/pos_hook";
 import { _t } from "@web/core/l10n/translation";
+import { jsonrpc } from "@web/core/network/rpc_service";
+import { useState } from "@odoo/owl";
 
-export class CashCategoryPopup extends Component {
+export class CashCategoryPopup extends AbstractAwaitablePopup {
     static template = "pos_cash_category.CashCategoryPopup";
-    static components = { Dialog };
-    static props = {
-        title: { type: String, optional: true },
-        type: { type: String, optional: true },
-        close: Function,
-        getPayload: { type: Function, optional: true },
-        confirmKey: { type: String, optional: true },
-    };
 
     setup() {
+        super.setup();
         this.pos = usePos();
-        this.orm = useService("orm");
-        this.notification = useService("notification");
+        this.notification = useService("pos_notification");
 
         this.state = useState({
             type: this.props.type || "in",
@@ -73,11 +66,12 @@ export class CashCategoryPopup extends Component {
         try {
             const amount = this.state.type === 'out' ? -Math.abs(parsedAmount) : Math.abs(parsedAmount);
 
-            const result = await this.orm.call(
-                "pos.session",
-                "create_cash_move",
-                [[this.pos.session.id], this.state.selectedCategory.id, amount, this.state.reason]
-            );
+            const result = await jsonrpc("/web/dataset/call_kw/pos.session/create_cash_move", {
+                model: "pos.session",
+                method: "create_cash_move",
+                args: [[this.pos.pos_session.id], this.state.selectedCategory.id, amount, this.state.reason],
+                kwargs: {},
+            });
 
             if (result.error) {
                 this.notification.add(result.error, { type: "danger" });
@@ -91,7 +85,7 @@ export class CashCategoryPopup extends Component {
                 { type: "success" }
             );
 
-            this.props.close();
+            this.props.close({ confirmed: true });
         } catch (error) {
             console.error("Error creating cash move:", error);
             this.notification.add(_t("Error recording cash move"), { type: "danger" });
@@ -99,6 +93,6 @@ export class CashCategoryPopup extends Component {
     }
 
     cancel() {
-        this.props.close();
+        this.props.close({ confirmed: false });
     }
 }

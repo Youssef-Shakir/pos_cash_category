@@ -17,9 +17,15 @@ class PosConfig(models.Model):
         help="Limit categories available in this POS. Leave empty for all."
     )
 
-    @api.model
-    def _load_pos_self_data_fields(self, config_id):
-        """Add use_cash_categories to the fields loaded by POS"""
-        result = super()._load_pos_self_data_fields(config_id)
-        result += ['use_cash_categories']
+
+class PosSession(models.Model):
+    _inherit = 'pos.session'
+
+    def _pos_ui_models_to_load(self):
+        result = super()._pos_ui_models_to_load()
+        return result
+
+    def _loader_params_pos_config(self):
+        result = super()._loader_params_pos_config()
+        result['search_params']['fields'].append('use_cash_categories')
         return result

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'POS Cash In/Out Categories',
-    'version': '18.0.1.0.0',
+    'version': '17.0.1.0.0',
     'category': 'Point of Sale',
     'summary': 'Categorize POS cash in/out with automatic account posting',
     'author': 'Donialink, Yousif Shakir',
