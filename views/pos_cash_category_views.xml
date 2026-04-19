@@ -48,7 +48,7 @@
         <field name="name">pos.cash.category.list</field>
         <field name="model">pos.cash.category</field>
         <field name="arch" type="xml">
-            <list string="Cash Categories">
+            <tree string="Cash Categories">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="category_type"/>
@@ -57,7 +57,7 @@
                 <field name="total_cash_out" sum="Total Out"/>
                 <field name="move_count"/>
                 <field name="company_id" groups="base.group_multi_company"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -65,7 +65,7 @@
     <record id="action_pos_cash_category" model="ir.actions.act_window">
         <field name="name">Cash Categories</field>
         <field name="res_model">pos.cash.category</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
     </record>
 
     <!-- Cash Move Form View -->
@@ -104,7 +104,7 @@
         <field name="name">pos.cash.move.list</field>
         <field name="model">pos.cash.move</field>
         <field name="arch" type="xml">
-            <list string="Cash Moves">
+            <tree string="Cash Moves">
                 <field name="create_date" string="Date"/>
                 <field name="name"/>
                 <field name="session_id"/>
@@ -113,7 +113,7 @@
                 <field name="amount" sum="Total"/>
                 <field name="user_id"/>
                 <field name="account_move_id"/>
-            </list>
+            </tree>
         </field>
     </record>
 
@@ -143,7 +143,7 @@
     <record id="action_pos_cash_move" model="ir.actions.act_window">
         <field name="name">Cash Moves</field>
         <field name="res_model">pos.cash.move</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_pos_cash_move_search"/>
     </record>
 

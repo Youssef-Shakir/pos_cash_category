@@ -37,7 +37,7 @@
                     </group>
                 </group>
                 <field name="cash_move_ids" readonly="1" invisible="not cash_move_ids">
-                    <list>
+                    <tree>
                         <field name="create_date" string="Date"/>
                         <field name="name"/>
                         <field name="category_id"/>
@@ -45,7 +45,7 @@
                         <field name="amount" sum="Total"/>
                         <field name="statement_line_id" optional="hide"/>
                         <field name="account_move_id"/>
-                    </list>
+                    </tree>
                 </field>
             </xpath>
         </field>
