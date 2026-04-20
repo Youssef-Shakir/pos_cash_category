@@ -1,56 +1,57 @@
 /** @odoo-module **/
 
-import { PosStore } from "@point_of_sale/app/store/pos_store";
 import { patch } from "@web/core/utils/patch";
 import { CashCategoryPopup } from "@pos_cash_category/js/cash_category_popup";
 import { _t } from "@web/core/l10n/translation";
 import { jsonrpc } from "@web/core/network/rpc_service";
+import { CashMovePopup } from "@point_of_sale/app/navbar/cash_move_popup/cash_move_popup";
+import { usePos } from "@point_of_sale/app/store/pos_hook";
 
-patch(PosStore.prototype, {
-    async loadCashCategories() {
-        if (this._cashCategoriesLoaded) {
-            return;
-        }
+console.log("[CashCategory] Module loading...");
 
-        const sessionId = this.pos_session?.id || this.session?.id;
-        console.log("[CashCategory] Loading categories, session:", sessionId);
-
-        try {
-            this.cashCategories = await jsonrpc("/web/dataset/call_kw/pos.session/get_cash_categories", {
-                model: "pos.session",
-                method: "get_cash_categories",
-                args: [[sessionId]],
-                kwargs: {},
-            });
-            this._cashCategoriesLoaded = true;
-            console.log("[CashCategory] Loaded categories:", this.cashCategories);
-        } catch (error) {
-            console.error("[CashCategory] Error loading categories:", error);
-            this.cashCategories = [];
-        }
+patch(CashMovePopup.prototype, {
+    setup() {
+        super.setup();
+        this.pos = usePos();
+        console.log("[CashCategory] CashMovePopup patched, config:", this.pos?.config);
     },
 
-    async cashMove() {
-        console.log("[CashCategory] cashMove called, config:", this.config);
-        console.log("[CashCategory] use_cash_categories:", this.config?.use_cash_categories);
+    async confirm() {
+        console.log("[CashCategory] confirm called, use_cash_categories:", this.pos?.config?.use_cash_categories);
 
-        if (this.config && this.config.use_cash_categories) {
-            await this.loadCashCategories();
+        if (this.pos?.config?.use_cash_categories) {
+            // Load categories and show custom popup
+            try {
+                const sessionId = this.pos.pos_session?.id;
+                console.log("[CashCategory] Loading categories for session:", sessionId);
 
-            if (this.cashCategories && this.cashCategories.length > 0) {
-                console.log("[CashCategory] Showing custom popup");
-                this.hardwareProxy.openCashbox(_t("Cash in / out"));
-                const { confirmed } = await this.popup.add(CashCategoryPopup, {
-                    title: _t("Cash In/Out"),
-                    type: "in",
+                const categories = await jsonrpc("/web/dataset/call_kw/pos.session/get_cash_categories", {
+                    model: "pos.session",
+                    method: "get_cash_categories",
+                    args: [[sessionId]],
+                    kwargs: {},
                 });
-                return confirmed;
-            } else {
-                console.log("[CashCategory] No categories, falling back to default");
+
+                console.log("[CashCategory] Categories loaded:", categories);
+
+                if (categories && categories.length > 0) {
+                    this.pos.cashCategories = categories;
+                    // Close current popup and open custom one
+                    this.props.close();
+                    await this.pos.popup.add(CashCategoryPopup, {
+                        title: _t("Cash In/Out"),
+                        type: "in",
+                    });
+                    return;
+                }
+            } catch (error) {
+                console.error("[CashCategory] Error:", error);
             }
-        } else {
-            console.log("[CashCategory] Feature disabled, using default");
         }
-        return super.cashMove(...arguments);
-    },
+
+        // Fall back to default behavior
+        return super.confirm();
+    }
 });
+
+console.log("[CashCategory] Module loaded successfully");
