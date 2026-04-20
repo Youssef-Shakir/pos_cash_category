@@ -21,9 +21,8 @@ class PosConfig(models.Model):
 class PosSession(models.Model):
     _inherit = 'pos.session'
 
-    def _loader_params_pos_config(self):
-        result = super()._loader_params_pos_config()
-        if 'search_params' in result and 'fields' in result['search_params']:
-            if 'use_cash_categories' not in result['search_params']['fields']:
-                result['search_params']['fields'].append('use_cash_categories')
+    def _get_pos_ui_pos_config(self, params):
+        """Add use_cash_categories to POS config data."""
+        result = super()._get_pos_ui_pos_config(params)
+        result['use_cash_categories'] = self.config_id.use_cash_categories
         return result
