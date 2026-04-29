@@ -81,14 +81,15 @@ export class CashCategoryPopup extends AbstractAwaitablePopup {
                 return;
             }
 
+            this.props.close({ confirmed: true });
+
             const typeLabel = this.state.type === 'in' ? _t('In') : _t('Out');
-            const formattedAmount = this.env.utils.formatCurrency(Math.abs(parsedAmount));
+            const symbol = this.pos.currency?.symbol || '';
+            const formattedAmount = `${symbol}${Math.abs(parsedAmount).toFixed(2)}`;
             this.notification.add(
                 _t("Cash %s recorded: %s", typeLabel, formattedAmount),
                 { type: "success" }
             );
-
-            this.props.close({ confirmed: true });
         } catch (error) {
             console.error("Error creating cash move:", error);
             this.notification.add(_t("Error recording cash move"), { type: "danger" });
