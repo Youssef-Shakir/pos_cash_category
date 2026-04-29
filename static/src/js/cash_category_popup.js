@@ -52,6 +52,8 @@ export class CashCategoryPopup extends AbstractAwaitablePopup {
     }
 
     async confirm() {
+        if (this.state.loading) return;
+
         if (!this.state.selectedCategory) {
             this.notification.add(_t("Please select a category"), { type: "warning" });
             return;
@@ -63,6 +65,7 @@ export class CashCategoryPopup extends AbstractAwaitablePopup {
             return;
         }
 
+        this.state.loading = true;
         try {
             const amount = this.state.type === 'out' ? -Math.abs(parsedAmount) : Math.abs(parsedAmount);
 
@@ -89,6 +92,8 @@ export class CashCategoryPopup extends AbstractAwaitablePopup {
         } catch (error) {
             console.error("Error creating cash move:", error);
             this.notification.add(_t("Error recording cash move"), { type: "danger" });
+        } finally {
+            this.state.loading = false;
         }
     }
 

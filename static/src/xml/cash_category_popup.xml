@@ -82,9 +82,11 @@
                 <button
                     t-att-class="'btn btn-lg ' + (state.type === 'in' ? 'btn-success' : 'btn-danger')"
                     t-on-click="confirm"
-                    t-att-disabled="!isValid">
-                    <i t-att-class="'fa me-2 ' + (state.type === 'in' ? 'fa-arrow-down' : 'fa-arrow-up')"/>
-                    Confirm <t t-esc="state.type === 'in' ? 'Cash In' : 'Cash Out'"/>
+                    t-att-disabled="!isValid or state.loading">
+                    <i t-if="state.loading" class="fa fa-spinner fa-spin me-2"/>
+                    <i t-else="" t-att-class="'fa me-2 ' + (state.type === 'in' ? 'fa-arrow-down' : 'fa-arrow-up')"/>
+                    <t t-if="state.loading">Processing...</t>
+                    <t t-else="">Confirm <t t-esc="state.type === 'in' ? 'Cash In' : 'Cash Out'"/></t>
                 </button>
             </div>
         </div>
