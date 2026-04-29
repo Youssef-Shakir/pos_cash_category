@@ -62,7 +62,7 @@ class PosSession(models.Model):
             move_type = 'in' if amount >= 0 else 'out'
             abs_amount = abs(amount)
 
-            statement_line = self._create_cash_statement_line(category, abs_amount, move_type, reason)
+            accounting_move = self._create_cash_accounting_entry(category, abs_amount, move_type, reason)
 
             move = self.env['pos.cash.move'].create({
                 'name': reason if reason else category.name,
@@ -70,7 +70,7 @@ class PosSession(models.Model):
                 'category_id': category_id,
                 'amount': amount,
                 'notes': reason or '',
-                'statement_line_id': statement_line.id if statement_line else False,
+                'account_move_id': accounting_move.id if accounting_move else False,
             })
 
             return {
@@ -84,29 +84,39 @@ class PosSession(models.Model):
             _logger.error("Error creating cash move: %s", str(e))
             return {'error': str(e)}
 
-    def _create_cash_statement_line(self, category, amount, move_type, reason):
-        """Create a bank statement line for the cash move (for session cash control)"""
+    def _create_cash_accounting_entry(self, category, amount, move_type, reason):
+        """Create a direct journal entry for the cash move, avoiding bank statement line constraints."""
         self.ensure_one()
 
         if not self.cash_journal_id:
             _logger.warning("No cash journal configured for session %s", self.name)
             return None
 
-        sign = 1 if move_type == 'in' else -1
-        signed_amount = sign * amount
+        cash_account = self.cash_journal_id.default_account_id
+        if not cash_account:
+            _logger.warning("No default account on cash journal for session %s", self.name)
+            return None
 
         type_label = _('Cash In') if move_type == 'in' else _('Cash Out')
-        payment_ref = f"{self.name} - {type_label} - {category.name}"
+        ref = f"{self.name} - {type_label} - {category.name}"
         if reason:
-            payment_ref += f" ({reason})"
+            ref += f" ({reason})"
 
-        vals = {
-            'pos_session_id': self.id,
+        if move_type == 'in':
+            debit_account_id = cash_account.id
+            credit_account_id = category.account_id.id
+        else:
+            debit_account_id = category.account_id.id
+            credit_account_id = cash_account.id
+
+        move = self.env['account.move'].create({
             'journal_id': self.cash_journal_id.id,
-            'amount': signed_amount,
             'date': fields.Date.context_today(self),
-            'payment_ref': payment_ref,
-            'counterpart_account_id': category.account_id.id,
-        }
-
-        return self.env['account.bank.statement.line'].create(vals)
+            'ref': ref,
+            'line_ids': [
+                (0, 0, {'name': ref, 'account_id': debit_account_id, 'debit': amount, 'credit': 0.0}),
+                (0, 0, {'name': ref, 'account_id': credit_account_id, 'debit': 0.0, 'credit': amount}),
+            ],
+        })
+        move.action_post()
+        return move

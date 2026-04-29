@@ -112,10 +112,9 @@ class PosCashMove(models.Model):
     )
 
     account_move_id = fields.Many2one(
-        related='statement_line_id.move_id',
+        'account.move',
         string='Journal Entry',
         readonly=True,
-        store=True
     )
 
     notes = fields.Text(string='Notes')
